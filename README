@@ -1,0 +1,72 @@
+WeatherPy
+Got code to convert Kelvin to Celsius or fahrenheit from chat.openai.com
+# Convert Kelvin to Celsius for Max Temp
+city_data_df["Max Temp (C)"] = city_data_df["Max Temp"] - 273.15
+# Convert Kelvin to fahrenheit for Max Temp
+city_data_df["Max Temp (F)"] = (city_data_df["Max Temp"] - 273.15) * 9/5 + 32
+
+--------------
+
+VacationPy
+Got code to convert Kelvin to Celsius or fahrenheit from chat.openai.com
+city_data_df['Max Temp'] = city_data_df['Max Temp'] - 273.15
+
+Spent like 2 hrs on this code, unable to figure out why no hotels were being displayed...
+
+# Set parameters to search for a hotel
+radius = 10000
+params = {
+    "categories":"accommodation.hotel",
+    "apiKey": geoapify_key,
+    "limit":1
+}
+
+# Print a message to follow up the hotel search
+print("Starting hotel search")
+
+# Iterate through the hotel_df DataFrame
+for index, row in hotel_df.iterrows():
+    # Get latitude, longitude from the DataFrame
+    lat = row["Lat"]
+    lng = row["Lng"]
+    
+    # Add filter and bias parameters with the current city's latitude and longitude to the params dictionary
+    params["filter"] = f"circle:{lng},{lat},{radius}"
+    params["bias"] = f"proximity:{lng},{lat}"
+    
+    # Set base URL
+    base_url = "https://api.geoapify.com/v2/places"
+
+    # Make an API request using the params dictionary
+    response = requests.get(base_url, params=params)
+
+    # Convert the API response to JSON format
+    name_address = response.json()
+
+    # Grab the first hotel from the results and store the name in the hotel_df DataFrame
+    try:
+        hotel_df.loc[index, "Hotel Name"] = name_address["features"][0]["properties"]["name"]
+    except (KeyError, IndexError):
+        # If no hotel is found, set the hotel name as "No hotel found".
+        hotel_df.loc[index, "Hotel Name"] = "No hotel found"
+        
+    # Log the search results
+    print(f"{hotel_df.loc[index, 'City']} - nearest hotel: {hotel_df.loc[index, 'Hotel Name']}")
+
+# Display sample data
+hotel_df
+
+Only after implementing this...
+
+# Make an API request using the params dictionary
+response = requests.get(base_url, params=params)
+
+# Print the API response content for debugging
+print(response.text)
+
+# Convert the API response to JSON format
+name_address = response.json()
+
+... i was able to find the correct word "accommodation.hotel"
+
+This was a difficult assignment 
